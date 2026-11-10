@@ -19,6 +19,9 @@ Then open http://localhost:3000 in a browser.
 - Connected the Proofread and Make a worksheet actions to the OpenAI API through `server.js`; the key stays in `.env` and the game pauses on “Thinking…”.
 - Added safety reminders and prompts that ask for hints, outlines, and feedback instead of doing the student’s work.
 - Tested the end-to-end AI-to-game flow with a sample question; the game pauses while thinking and then starts the playable level.
+- Required the student to submit their own attempt before the obby unlocks.
+- Made the obby longer and different each run with 24 generated platforms, reachable gap limits, spikes below and on some platforms, coins, and color crates.
+- Added a 3D-style perspective using beveled platform faces, a white starting character, and a click-to-open picker for colors unlocked from crates.
 
 ## Maybe Later
 

@@ -11,10 +11,10 @@
     <section id="start-screen" class="card screen">
       <p class="eyebrow">StudyAssistant · Version 1</p>
       <h1>Learn a little. Play a little.</h1>
-      <p class="lead">Get kind AI study help, then earn coins by finishing a short obby.</p>
+      <p class="lead">Finish a quick AI study activity, then earn coins in a different 3D-style obby every run.</p>
       <div class="safety">For your safety, do not include your name, location, school, grade, or other personal information.</div>
       <label for="student-input">What are you working on?</label>
-      <textarea id="student-input" maxlength="5000" placeholder="Paste a small piece of work or ask a study question..."></textarea>
+      <textarea id="student-input" maxlength="5000" spellcheck="false" autocomplete="off" placeholder="Paste a small piece of work or ask a study question..."></textarea>
       <div class="choice-row">
         <button class="primary action-button" data-action="proofread">Proofread my work</button>
         <button class="secondary action-button" data-action="worksheet">Make a worksheet</button>
@@ -22,14 +22,25 @@
       <p id="ai-error" class="error" role="alert"></p>
     </section>
 
+    <section id="activity-screen" class="card screen hidden">
+      <p class="eyebrow">Study step</p>
+      <h2>Now do the work yourself</h2>
+      <div class="ai-response"><strong>StudyAssistant:</strong><span id="activity-answer"></span></div>
+      <label for="student-work">Your attempt</label>
+      <textarea id="student-work" maxlength="5000" spellcheck="false" autocomplete="off" placeholder="Answer one question, write your revision plan, or show what you changed..."></textarea>
+      <p class="hint">StudyAssistant gives help, but you do the assignment before you unlock the obby.</p>
+      <button id="complete-activity" class="primary" disabled>Finish study step to unlock the obby</button>
+    </section>
+
     <section id="thinking" class="card screen hidden" aria-live="polite">
       <div class="spinner"></div><h2>Thinking…</h2><p>Your game is paused while StudyAssistant prepares a short answer.</p>
     </section>
 
     <section id="game-screen" class="game-wrap hidden">
-      <div class="hud"><span>Coins: <strong id="score">0</strong></span><span>Reach the star!</span><button id="restart-top" class="tiny">Restart</button></div>
+      <div class="hud"><span>Coins: <strong id="score">0</strong></span><span id="run-label">Run 1 · Reach the star!</span><button id="restart-top" class="tiny">Restart</button></div>
       <div id="game-container"></div>
       <div id="ai-card" class="ai-card"><strong>StudyAssistant says:</strong><span id="ai-answer"></span></div>
+      <div class="avatar-dock"><button id="avatar-button" class="avatar-button" aria-label="Choose character color"><span id="avatar-face"></span></button><div><strong>Your character</strong><p>Click the character to choose unlocked crate colors.</p></div><div id="color-picker" class="color-picker hidden"></div></div>
       <div class="touch-controls" aria-label="Touch controls"><button data-control="left">←</button><button data-control="jump">↑</button><button data-control="right">→</button></div>
       <p class="controls-note">Keyboard: A/D or ←/→ to move · W, ↑, or Space to jump</p>
     </section>
