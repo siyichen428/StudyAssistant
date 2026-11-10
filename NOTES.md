@@ -22,6 +22,7 @@ Then open http://localhost:3000 in a browser.
 - Required the student to submit their own attempt before the obby unlocks.
 - Made the obby longer and different each run with 24 generated platforms, reachable gap limits, spikes below and on some platforms, coins, and color crates.
 - Added a 3D-style perspective using beveled platform faces, a white starting character, and a click-to-open picker for colors unlocked from crates.
+- Updated the player to a colored circle with two eyes and a smiling mouth; changing the selected color updates the in-game character.
 
 ## Maybe Later
 
