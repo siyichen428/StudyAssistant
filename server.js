@@ -34,11 +34,12 @@ function readBody(req) {
   });
 }
 
-async function askAI(message, action) {
+async function askAI(message, action, subject) {
   if (!env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing.');
+  const subjectLine = `Subject: ${subject || 'Other'}.`;
   const userMessage = action === 'worksheet'
-    ? `Make a short custom worksheet from this student question or topic. Give hints and practice, not the completed answers. Student input:\n${message}`
-    : `Proofread this student work. Give kind, short tips and an outline for improvement. Do not rewrite the whole assignment. Student input:\n${message}`;
+    ? `${subjectLine} Make a short custom worksheet from this student question or topic. Give hints and practice, not the completed answers. Student input:\n${message}`
+    : `${subjectLine} Proofread this student work. Give kind, short tips and an outline for improvement. Do not rewrite the whole assignment. Student input:\n${message}`;
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENAI_API_KEY}` },
@@ -58,9 +59,10 @@ const server = http.createServer(async (req, res) => {
       const body = JSON.parse(await readBody(req));
       const message = String(body.message || '').trim();
       const action = body.action === 'worksheet' ? 'worksheet' : 'proofread';
+      const subject = String(body.subject || 'Other').slice(0, 40);
       if (!message) return send(res, 400, { error: 'Add a question or a small piece of work first.' });
       if (message.length > 5000) return send(res, 400, { error: 'Please keep the student input under 5,000 characters.' });
-      return send(res, 200, { answer: await askAI(message, action) });
+      return send(res, 200, { answer: await askAI(message, action, subject) });
     }
     const requested = req.url === '/' ? '/index.html' : req.url.split('?')[0];
     const file = path.resolve(ROOT, `public${requested}`);
