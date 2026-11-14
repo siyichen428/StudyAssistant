@@ -37,20 +37,32 @@ function readBody(req) {
 async function askAI(message, action, subject) {
   if (!env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing.');
   const subjectLine = `Subject: ${subject || 'Other'}.`;
+  const studyInput = message || 'No topic was provided. Create a friendly starter worksheet with a few age-appropriate practice questions and short hints.';
   const userMessage = action === 'worksheet'
-    ? `${subjectLine} Make a short custom worksheet from this student question or topic. Give hints and practice, not the completed answers. Student input:\n${message}`
-    : `${subjectLine} Proofread this student work. Give kind, short tips and an outline for improvement. Do not rewrite the whole assignment. Student input:\n${message}`;
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    ? `${subjectLine} Always produce a worksheet or practice activity, even when the student request is empty, one word, or very short. If the student asks for an AMC 8 question, create one original AMC 8-style practice question for a middle-school student, with answer choices when helpful and a short hint, but do not give the answer unless asked. Do not copy a named contest's exact question. Give hints and practice, not completed schoolwork. Student input:\n${studyInput}`
+    : `${subjectLine} Proofread this student work. Give kind, short tips and an outline for improvement. Do not rewrite the whole assignment. Student input:\n${studyInput}`;
+  const response = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENAI_API_KEY}` },
-    body: JSON.stringify({ model, max_completion_tokens: 180, messages: [
-      { role: 'system', content: `${brief}\n\nKeep every answer kind, understandable, and short. Never ask for or repeat personal information. If the student includes a name, location, school, grade, or other personal detail, tell them to remove it. Do not do the student's work for them.` },
-      { role: 'user', content: userMessage },
-    ] }),
+    body: JSON.stringify({
+      model,
+      tools: [{ type: 'web_search' }],
+      tool_choice: 'auto',
+      max_output_tokens: 320,
+      instructions: `${brief}\n\nKeep every answer kind, understandable, and short. Use web search when the question needs current, specific, or source-based information. Never ask for or repeat personal information. If the student includes a name, location, school, grade, or other personal detail, tell them to remove it. Do not do the student's work for them.`,
+      input: userMessage,
+    }),
   });
   if (!response.ok) throw new Error(`AI request failed (${response.status}).`);
   const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || 'Try again with a little more detail.';
+  const outputText = data.output
+    ?.filter((item) => item.type === 'message')
+    .flatMap((item) => item.content || [])
+    .filter((content) => content.type === 'output_text')
+    .map((content) => content.text)
+    .join('\n')
+    .trim();
+  return outputText || data.output_text?.trim() || 'Try again with a little more detail.';
 }
 
 const server = http.createServer(async (req, res) => {
@@ -60,7 +72,7 @@ const server = http.createServer(async (req, res) => {
       const message = String(body.message || '').trim();
       const action = body.action === 'worksheet' ? 'worksheet' : 'proofread';
       const subject = String(body.subject || 'Other').slice(0, 40);
-      if (!message) return send(res, 400, { error: 'Add a question or a small piece of work first.' });
+      if (!message && action !== 'worksheet') return send(res, 400, { error: 'Add a small piece of work to proofread first.' });
       if (message.length > 5000) return send(res, 400, { error: 'Please keep the student input under 5,000 characters.' });
       return send(res, 200, { answer: await askAI(message, action, subject) });
     }

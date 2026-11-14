@@ -32,7 +32,7 @@ function updateColorPicker() {
 function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
 async function requestAI(action) {
   const message = $('student-input').value.trim();
-  if (!message) { $('ai-error').textContent = 'Add a small question or piece of work first.'; return; }
+  if (!message && action !== 'worksheet') { $('ai-error').textContent = 'Add a small piece of work first.'; return; }
   if (message.length > CONFIG.maxInputLength) { $('ai-error').textContent = 'Please make your input shorter.'; return; }
   $('ai-error').textContent = ''; showScreen('thinking');
   try { const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, subject: $('subject').value, message }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); currentAnswer = data.answer; showStudyActivity(); }
