@@ -38,7 +38,9 @@ async function askAI(message, action, subject) {
   if (!env.OPENAI_API_KEY) throw new Error('OPENAI_API_KEY is missing.');
   const subjectLine = `Subject: ${subject || 'Other'}.`;
   const studyInput = message || 'No topic was provided. Create a friendly starter worksheet with a few age-appropriate practice questions and short hints.';
-  const userMessage = action === 'steps'
+  const userMessage = action === 'check'
+    ? `${subjectLine} Check the student's attempt against the question or activity and the StudyAssistant response below. Do not mark an empty, missing, or clearly incomplete attempt as correct. Return exactly one of these formats, with no extra label: CORRECT or INCORRECT: followed by a short, kind, step-by-step explanation that teaches the method and helps the student try again. Do not shame the student and do not reveal the final answer unless it is needed to explain a step.\n\nQuestion or activity:\n${studyInput}`
+    : action === 'steps'
     ? `${subjectLine} The student says they cannot do this question or activity yet. Give a calm, numbered, step-by-step explanation that teaches the method. Start with what to identify, show the next small step, and include a quick check after each step. Give hints and reasoning, but do not reveal the final answer unless it is needed to demonstrate a step. Question or activity:\n${studyInput}`
     : action === 'worksheet'
     ? `${subjectLine} Always produce a worksheet or practice activity, even when the student request is empty, one word, or very short. If the student asks for an AMC 8 question, create one original AMC 8-style practice question for a middle-school student, with answer choices when helpful and a short hint, but do not give the answer unless asked. Do not copy a named contest's exact question. Give hints and practice, not completed schoolwork. Student input:\n${studyInput}`
@@ -89,7 +91,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && req.url === '/api/ai') {
       const body = JSON.parse(await readBody(req));
       const message = String(body.message || '').trim();
-      const action = body.action === 'worksheet' ? 'worksheet' : body.action === 'steps' ? 'steps' : 'proofread';
+      const action = body.action === 'worksheet' ? 'worksheet' : body.action === 'steps' ? 'steps' : body.action === 'check' ? 'check' : 'proofread';
       const subject = String(body.subject || 'Other').slice(0, 40);
       if (!message && action !== 'worksheet' && action !== 'steps') return send(res, 400, { error: 'Add a small piece of work to proofread first.' });
       if (message.length > 5000) return send(res, 400, { error: 'Please keep the student input under 5,000 characters.' });

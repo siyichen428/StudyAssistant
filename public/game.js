@@ -45,7 +45,7 @@ function updateShop() {
 function spendCoins(cost) { const scene = currentScene(); if (!scene || scene.coins < cost) return false; scene.coins -= cost; $('score').textContent = scene.coins; updateShop(); return true; }
 function buyColorPack() { const color = SHOP_COLORS.find((item) => !unlockedColors.has(item)); if (!color) return; if (!spendCoins(5)) { $('shop-message').textContent = 'Collect 5 coins first.'; return; } unlockedColors.add(color); selectedColor = color; $('avatar-button').style.background = color; $('avatar-face').style.background = '#fff'; currentScene()?.setPlayerColor(color); updateColorPicker(); $('shop-message').textContent = 'New color unlocked and equipped!'; }
 function buyDecorationPack() { const decoration = DECORATIONS.find((item) => !unlockedDecorations.has(item)); if (!decoration) return; if (!spendCoins(7)) { $('shop-message').textContent = 'Collect 7 coins first.'; return; } unlockedDecorations.add(decoration); currentScene()?.addShopDecoration(decoration); $('shop-message').textContent = `${decoration.replace('-', ' ')} added to your 3D scene!`; }
-function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('retry-answer').disabled = false; $('retry-answer').textContent = 'That answer is incorrect — try again'; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
+function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('retry-answer').disabled = false; $('retry-answer').textContent = 'That answer is incorrect — try again'; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('attempt-feedback').classList.add('hidden'); $('attempt-feedback').textContent = ''; $('student-work').value = ''; $('complete-activity').disabled = true; $('complete-activity').textContent = 'Check my attempt'; showScreen('activity'); $('student-work').focus(); }
 async function requestAI(action) {
   if (aiRequestInFlight) return;
   const message = $('student-input').value.trim();
@@ -129,7 +129,28 @@ document.querySelectorAll('.action-button').forEach((button) => button.addEventL
 $('student-work').addEventListener('input', () => { $('complete-activity').disabled = !$('student-work').value.trim(); });
 $('step-help').addEventListener('click', requestStepHelp);
 $('retry-answer').addEventListener('click', retryAnswer);
-$('complete-activity').addEventListener('click', () => { $('ai-answer').textContent = currentAnswer; startGame(); });
+async function submitStudentAttempt() {
+  const attempt = $('student-work').value.trim();
+  if (!attempt) return;
+  const button = $('complete-activity');
+  button.disabled = true; button.textContent = 'Checking your attempt…'; $('attempt-feedback').classList.add('hidden');
+  const message = `Question or activity:\n${$('student-input').value.trim() || 'the practice activity'}\n\nStudyAssistant response:\n${currentAnswer}\n\nStudent attempt:\n${attempt}`;
+  try {
+    const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'check', subject: $('subject').value, message }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    if (/^\s*CORRECT\b/i.test(data.answer)) { $('ai-answer').textContent = currentAnswer; startGame(); return; }
+    const explanation = data.answer.replace(/^\s*INCORRECT\s*:\s*/i, '').trim();
+    $('attempt-feedback').textContent = `Sorry, try again.\n\n${explanation}`;
+    $('attempt-feedback').classList.remove('hidden');
+    button.disabled = false; button.textContent = 'Check my attempt';
+  } catch (error) {
+    $('attempt-feedback').textContent = 'I could not check that attempt right now. Please try again.';
+    $('attempt-feedback').classList.remove('hidden');
+    button.disabled = false; button.textContent = 'Check my attempt';
+  }
+}
+$('complete-activity').addEventListener('click', submitStudentAttempt);
 $('play-again').addEventListener('click', () => { showScreen('start'); $('student-input').focus(); });
 $('restart-top').addEventListener('click', () => { showScreen('start'); if (game) game.destroy(true); });
 $('avatar-button').addEventListener('click', () => $('color-picker').classList.toggle('hidden'));

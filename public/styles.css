@@ -15,6 +15,7 @@ select { min-height: auto; margin-bottom: 12px; }
 textarea:focus { outline: 3px solid #91e6c7; }
 .ai-response { max-height: 190px; overflow: auto; padding: 16px; border-radius: 14px; background: #0e1430; color: #e8ebff; line-height: 1.5; white-space: pre-wrap; }
 .ai-response strong { color: #91e6c7; display: block; margin-bottom: 8px; }
+.attempt-feedback { margin-top: 12px; padding: 14px 16px; border: 1px solid #ff9eaa; border-radius: 14px; background: #3a203d; color: #ffe3e7; line-height: 1.5; white-space: pre-wrap; }
 .step-help-button { margin-top: 12px; }
 .retry-answer-button { margin-top: 12px; }
 .step-help-button:disabled { cursor: wait; opacity: .7; }
