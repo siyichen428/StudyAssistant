@@ -29,7 +29,7 @@ function updateColorPicker() {
   const picker = $('color-picker'); picker.innerHTML = '';
   COLORS.forEach((color) => { const button = document.createElement('button'); button.style.background = color; button.title = unlockedColors.has(color) ? 'Choose this color' : 'Locked: find a crate'; button.className = unlockedColors.has(color) ? '' : 'locked'; button.disabled = !unlockedColors.has(color); button.addEventListener('click', () => { selectedColor = color; $('avatar-button').style.background = color; $('avatar-face').style.background = color === '#ffffff' ? '#10152c' : '#fff'; game?.scene?.getScene('StudyScene')?.setPlayerColor(color); picker.classList.add('hidden'); }); picker.appendChild(button); });
 }
-function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
+function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
 async function requestAI(action) {
   const message = $('student-input').value.trim();
   if (!message && action !== 'worksheet') { $('ai-error').textContent = 'Add a small piece of work first.'; return; }
@@ -37,6 +37,25 @@ async function requestAI(action) {
   $('ai-error').textContent = ''; showScreen('thinking');
   try { const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, subject: $('subject').value, message }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); currentAnswer = data.answer; showStudyActivity(); }
   catch (error) { friendlyError(); }
+}
+
+async function requestStepHelp() {
+  const button = $('step-help');
+  const message = `${$('student-input').value.trim() || 'the practice activity'}\n\nPrevious StudyAssistant response:\n${currentAnswer}`;
+  button.disabled = true;
+  button.textContent = 'Preparing step-by-step help…';
+  try {
+    const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'steps', subject: $('subject').value, message }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    $('step-help-answer').textContent = data.answer;
+    $('step-help-panel').classList.remove('hidden');
+    button.textContent = 'Step-by-step help ready';
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = 'I need step-by-step help';
+    $('ai-error').textContent = 'Step-by-step help is unavailable right now. Please try again.';
+  }
 }
 
 class StudyScene extends Phaser.Scene {
@@ -81,6 +100,7 @@ function attachTouch() { document.querySelectorAll('[data-control]').forEach((bu
 
 document.querySelectorAll('.action-button').forEach((button) => button.addEventListener('click', () => requestAI(button.dataset.action)));
 $('student-work').addEventListener('input', () => { $('complete-activity').disabled = !$('student-work').value.trim(); });
+$('step-help').addEventListener('click', requestStepHelp);
 $('complete-activity').addEventListener('click', () => { $('ai-answer').textContent = currentAnswer; startGame(); });
 $('play-again').addEventListener('click', () => { showScreen('start'); $('student-input').focus(); });
 $('restart-top').addEventListener('click', () => { showScreen('start'); if (game) game.destroy(true); });
