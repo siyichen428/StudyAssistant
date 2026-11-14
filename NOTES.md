@@ -28,6 +28,7 @@ Then open http://localhost:3000 in a browser.
 - Added a subject selector for Math, History, Writing, Science, Reading, and Other so worksheet and proofreading help can be tailored across subjects.
 - Added an on-demand step-by-step help button that guides students through a problem without simply giving the final answer.
 - Made the obby slightly easier, strengthened its 3D-style perspective, and added a coin shop for color and decoration packs.
+- Added a retry button so students can request a fresh AI answer when the previous answer seems incorrect.
 
 ## Maybe Later
 

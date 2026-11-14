@@ -25,6 +25,7 @@ let unlockedColors = new Set(['#ffffff']);
 let selectedColor = '#ffffff';
 let runNumber = 0;
 let aiRequestInFlight = false;
+let lastAIAction = 'worksheet';
 let unlockedDecorations = new Set();
 
 function showScreen(name) { Object.entries(screens).forEach(([key, node]) => node.classList.toggle('hidden', key !== name)); }
@@ -44,18 +45,20 @@ function updateShop() {
 function spendCoins(cost) { const scene = currentScene(); if (!scene || scene.coins < cost) return false; scene.coins -= cost; $('score').textContent = scene.coins; updateShop(); return true; }
 function buyColorPack() { const color = SHOP_COLORS.find((item) => !unlockedColors.has(item)); if (!color) return; if (!spendCoins(5)) { $('shop-message').textContent = 'Collect 5 coins first.'; return; } unlockedColors.add(color); selectedColor = color; $('avatar-button').style.background = color; $('avatar-face').style.background = '#fff'; currentScene()?.setPlayerColor(color); updateColorPicker(); $('shop-message').textContent = 'New color unlocked and equipped!'; }
 function buyDecorationPack() { const decoration = DECORATIONS.find((item) => !unlockedDecorations.has(item)); if (!decoration) return; if (!spendCoins(7)) { $('shop-message').textContent = 'Collect 7 coins first.'; return; } unlockedDecorations.add(decoration); currentScene()?.addShopDecoration(decoration); $('shop-message').textContent = `${decoration.replace('-', ' ')} added to your 3D scene!`; }
-function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
+function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('retry-answer').disabled = false; $('retry-answer').textContent = 'That answer is incorrect — try again'; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
 async function requestAI(action) {
   if (aiRequestInFlight) return;
   const message = $('student-input').value.trim();
   if (!message && action !== 'worksheet') { $('ai-error').textContent = 'Add a small piece of work first.'; return; }
   if (message.length > CONFIG.maxInputLength) { $('ai-error').textContent = 'Please make your input shorter.'; return; }
-  aiRequestInFlight = true; setActionButtonsDisabled(true); $('ai-error').textContent = ''; showScreen('thinking');
+  aiRequestInFlight = true; lastAIAction = action; $('retry-answer').disabled = true; setActionButtonsDisabled(true); $('ai-error').textContent = ''; showScreen('thinking');
   const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 55000);
   try { const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, subject: $('subject').value, message }), signal: controller.signal }); const data = await response.json(); if (!response.ok) throw new Error(data.error); currentAnswer = data.answer; showStudyActivity(); }
   catch (error) { friendlyError(error); }
   finally { clearTimeout(timeout); aiRequestInFlight = false; setActionButtonsDisabled(false); }
 }
+
+function retryAnswer() { if (aiRequestInFlight) return; $('retry-answer').disabled = true; requestAI(lastAIAction); }
 
 async function requestStepHelp() {
   const button = $('step-help');
@@ -125,6 +128,7 @@ function attachTouch() { document.querySelectorAll('[data-control]').forEach((bu
 document.querySelectorAll('.action-button').forEach((button) => button.addEventListener('click', () => requestAI(button.dataset.action)));
 $('student-work').addEventListener('input', () => { $('complete-activity').disabled = !$('student-work').value.trim(); });
 $('step-help').addEventListener('click', requestStepHelp);
+$('retry-answer').addEventListener('click', retryAnswer);
 $('complete-activity').addEventListener('click', () => { $('ai-answer').textContent = currentAnswer; startGame(); });
 $('play-again').addEventListener('click', () => { showScreen('start'); $('student-input').focus(); });
 $('restart-top').addEventListener('click', () => { showScreen('start'); if (game) game.destroy(true); });

@@ -16,7 +16,9 @@ textarea:focus { outline: 3px solid #91e6c7; }
 .ai-response { max-height: 190px; overflow: auto; padding: 16px; border-radius: 14px; background: #0e1430; color: #e8ebff; line-height: 1.5; white-space: pre-wrap; }
 .ai-response strong { color: #91e6c7; display: block; margin-bottom: 8px; }
 .step-help-button { margin-top: 12px; }
+.retry-answer-button { margin-top: 12px; }
 .step-help-button:disabled { cursor: wait; opacity: .7; }
+.retry-answer-button:disabled { cursor: wait; opacity: .7; }
 .hint { color: #aab5ed; font-size: .9rem; }
 .safety { padding: 12px 14px; border-radius: 12px; background: #30294e; color: #ffd9a0; line-height: 1.4; font-size: .9rem; }
 .choice-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
