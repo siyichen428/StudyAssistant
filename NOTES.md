@@ -30,6 +30,7 @@ Then open http://localhost:3000 in a browser.
 - Made the obby slightly easier, strengthened its 3D-style perspective, and added a coin shop for color and decoration packs.
 - Added a retry button so students can request a fresh AI answer when the previous answer seems incorrect.
 - Added answer checking before the obby unlocks; incorrect attempts show “Sorry, try again” with an explanation.
+- Strengthened the AI guidance so it teaches with hints and methods without giving final answers.
 
 ## Maybe Later
 

@@ -39,9 +39,9 @@ async function askAI(message, action, subject) {
   const subjectLine = `Subject: ${subject || 'Other'}.`;
   const studyInput = message || 'No topic was provided. Create a friendly starter worksheet with a few age-appropriate practice questions and short hints.';
   const userMessage = action === 'check'
-    ? `${subjectLine} Check the student's attempt against the question or activity and the StudyAssistant response below. Do not mark an empty, missing, or clearly incomplete attempt as correct. Return exactly one of these formats, with no extra label: CORRECT or INCORRECT: followed by a short, kind, step-by-step explanation that teaches the method and helps the student try again. Do not shame the student and do not reveal the final answer unless it is needed to explain a step.\n\nQuestion or activity:\n${studyInput}`
+    ? `${subjectLine} Check the student's attempt against the question or activity and the StudyAssistant response below. Do not mark an empty, missing, or clearly incomplete attempt as correct. Return exactly one of these formats, with no extra label: CORRECT or INCORRECT: followed by a short, kind explanation that teaches the method and helps the student try again. Never write the final answer, final number, correct choice, or completed solution. Do not shame the student.\n\nQuestion or activity:\n${studyInput}`
     : action === 'steps'
-    ? `${subjectLine} The student says they cannot do this question or activity yet. Give a calm, numbered, step-by-step explanation that teaches the method. Start with what to identify, show the next small step, and include a quick check after each step. Give hints and reasoning, but do not reveal the final answer unless it is needed to demonstrate a step. Question or activity:\n${studyInput}`
+    ? `${subjectLine} The student says they cannot do this question or activity yet. Give a calm, numbered, step-by-step explanation that teaches the method. Start with what to identify, show the next small step, and include a quick check after each step. Give hints and reasoning, but stop before the final answer: never reveal the final number, correct choice, or completed solution. Question or activity:\n${studyInput}`
     : action === 'worksheet'
     ? `${subjectLine} Always produce a worksheet or practice activity, even when the student request is empty, one word, or very short. If the student asks for an AMC 8 question, create one original AMC 8-style practice question for a middle-school student, with answer choices when helpful and a short hint, but do not give the answer unless asked. Do not copy a named contest's exact question. Give hints and practice, not completed schoolwork. Student input:\n${studyInput}`
     : `${subjectLine} Proofread this student work. Give kind, short tips and an outline for improvement. Do not rewrite the whole assignment. Student input:\n${studyInput}`;
@@ -50,7 +50,7 @@ async function askAI(message, action, subject) {
     tools: [{ type: 'web_search' }],
     tool_choice: 'auto',
     max_output_tokens: 320,
-    instructions: `${brief}\n\nKeep every answer kind, understandable, and short. Use web search when the question needs current, specific, or source-based information. Never ask for or repeat personal information. If the student includes a name, location, school, grade, or other personal detail, tell them to remove it. Do not do the student's work for them.`,
+      instructions: `${brief}\n\nKeep every answer kind, understandable, and short. Use web search when the question needs current, specific, or source-based information. Never ask for or repeat personal information. If the student includes a name, location, school, grade, or other personal detail, tell them to remove it. Do not do the student's work for them. Never give a final answer, final number, correct multiple-choice option, or completed solution; give hints, a method, and the next step so the student does the final step themselves.`,
     input: userMessage,
   };
   let response;
