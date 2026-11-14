@@ -48,10 +48,18 @@
     </section>
 
     <section id="game-screen" class="game-wrap hidden">
-      <div class="hud"><span>Coins: <strong id="score">0</strong></span><span id="run-label">Run 1 · Reach the star!</span><button id="restart-top" class="tiny">Restart</button></div>
+      <div class="hud"><span>Coins: <strong id="score">0</strong></span><span id="run-label">Run 1 · Reach the star!</span><div class="hud-actions"><button id="shop-toggle" class="tiny">Shop</button><button id="restart-top" class="tiny">Restart</button></div></div>
       <div id="game-container"></div>
       <div id="ai-card" class="ai-card"><strong>StudyAssistant says:</strong><span id="ai-answer"></span></div>
       <div class="avatar-dock"><button id="avatar-button" class="avatar-button" aria-label="Choose character color"><span id="avatar-face"></span></button><div><strong>Your character</strong><p>Click the character to choose unlocked crate colors.</p></div><div id="color-picker" class="color-picker hidden"></div></div>
+      <div id="shop-panel" class="shop-panel hidden" aria-live="polite">
+        <div><strong>Coin Shop</strong><p>Spend coins from this run on upgrades.</p></div>
+        <div class="shop-items">
+          <button id="buy-color-pack" class="shop-item"><strong>Color pack</strong><span>5 coins · unlock a new color</span></button>
+          <button id="buy-decor-pack" class="shop-item"><strong>Decoration pack</strong><span>7 coins · add a 3D scene detail</span></button>
+        </div>
+        <p id="shop-message" class="shop-message"></p>
+      </div>
       <div class="touch-controls" aria-label="Touch controls"><button data-control="left">←</button><button data-control="jump">↑</button><button data-control="right">→</button></div>
       <p class="controls-note">Keyboard: A/D or ←/→ to move · W, ↑, or Space to jump</p>
     </section>
