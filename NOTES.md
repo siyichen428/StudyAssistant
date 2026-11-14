@@ -4,6 +4,8 @@
 
 # StudyAssistant Version 1
 
+After each save point, push it to GitHub.
+
 ## How to run
 
 ```text
