@@ -22,21 +22,26 @@ let currentAnswer = '';
 let unlockedColors = new Set(['#ffffff']);
 let selectedColor = '#ffffff';
 let runNumber = 0;
+let aiRequestInFlight = false;
 
 function showScreen(name) { Object.entries(screens).forEach(([key, node]) => node.classList.toggle('hidden', key !== name)); }
-function friendlyError() { $('ai-error').textContent = 'StudyAssistant could not answer. Please check the key and your internet connection, then try again.'; showScreen('start'); }
+function setActionButtonsDisabled(disabled) { document.querySelectorAll('.action-button').forEach((button) => { button.disabled = disabled; }); }
+function friendlyError(error) { const message = error?.name === 'AbortError' ? 'The request took too long.' : 'StudyAssistant could not answer.'; $('ai-error').textContent = `${message} Please try again.`; showScreen('start'); }
 function updateColorPicker() {
   const picker = $('color-picker'); picker.innerHTML = '';
   COLORS.forEach((color) => { const button = document.createElement('button'); button.style.background = color; button.title = unlockedColors.has(color) ? 'Choose this color' : 'Locked: find a crate'; button.className = unlockedColors.has(color) ? '' : 'locked'; button.disabled = !unlockedColors.has(color); button.addEventListener('click', () => { selectedColor = color; $('avatar-button').style.background = color; $('avatar-face').style.background = color === '#ffffff' ? '#10152c' : '#fff'; game?.scene?.getScene('StudyScene')?.setPlayerColor(color); picker.classList.add('hidden'); }); picker.appendChild(button); });
 }
 function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('student-work').value = ''; $('complete-activity').disabled = true; showScreen('activity'); $('student-work').focus(); }
 async function requestAI(action) {
+  if (aiRequestInFlight) return;
   const message = $('student-input').value.trim();
   if (!message && action !== 'worksheet') { $('ai-error').textContent = 'Add a small piece of work first.'; return; }
   if (message.length > CONFIG.maxInputLength) { $('ai-error').textContent = 'Please make your input shorter.'; return; }
-  $('ai-error').textContent = ''; showScreen('thinking');
-  try { const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, subject: $('subject').value, message }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); currentAnswer = data.answer; showStudyActivity(); }
-  catch (error) { friendlyError(); }
+  aiRequestInFlight = true; setActionButtonsDisabled(true); $('ai-error').textContent = ''; showScreen('thinking');
+  const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 55000);
+  try { const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, subject: $('subject').value, message }), signal: controller.signal }); const data = await response.json(); if (!response.ok) throw new Error(data.error); currentAnswer = data.answer; showStudyActivity(); }
+  catch (error) { friendlyError(error); }
+  finally { clearTimeout(timeout); aiRequestInFlight = false; setActionButtonsDisabled(false); }
 }
 
 async function requestStepHelp() {

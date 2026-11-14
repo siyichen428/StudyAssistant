@@ -43,18 +43,35 @@ async function askAI(message, action, subject) {
     : action === 'worksheet'
     ? `${subjectLine} Always produce a worksheet or practice activity, even when the student request is empty, one word, or very short. If the student asks for an AMC 8 question, create one original AMC 8-style practice question for a middle-school student, with answer choices when helpful and a short hint, but do not give the answer unless asked. Do not copy a named contest's exact question. Give hints and practice, not completed schoolwork. Student input:\n${studyInput}`
     : `${subjectLine} Proofread this student work. Give kind, short tips and an outline for improvement. Do not rewrite the whole assignment. Student input:\n${studyInput}`;
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENAI_API_KEY}` },
-    body: JSON.stringify({
-      model,
-      tools: [{ type: 'web_search' }],
-      tool_choice: 'auto',
-      max_output_tokens: 320,
-      instructions: `${brief}\n\nKeep every answer kind, understandable, and short. Use web search when the question needs current, specific, or source-based information. Never ask for or repeat personal information. If the student includes a name, location, school, grade, or other personal detail, tell them to remove it. Do not do the student's work for them.`,
-      input: userMessage,
-    }),
-  });
+  const requestBody = {
+    model,
+    tools: [{ type: 'web_search' }],
+    tool_choice: 'auto',
+    max_output_tokens: 320,
+    instructions: `${brief}\n\nKeep every answer kind, understandable, and short. Use web search when the question needs current, specific, or source-based information. Never ask for or repeat personal information. If the student includes a name, location, school, grade, or other personal detail, tell them to remove it. Do not do the student's work for them.`,
+    input: userMessage,
+  };
+  let response;
+  let lastError;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      response = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.OPENAI_API_KEY}` },
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(45000),
+      });
+      if (response.ok) break;
+      lastError = new Error(`AI request failed (${response.status}).`);
+      if (response.status < 500 && response.status !== 429) throw lastError;
+    } catch (error) {
+      lastError = error;
+      if (error.name === 'AbortError' && attempt === 0) continue;
+      if (attempt === 1) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 700));
+  }
+  if (!response?.ok) throw lastError || new Error('AI request failed.');
   if (!response.ok) throw new Error(`AI request failed (${response.status}).`);
   const data = await response.json();
   const outputText = data.output
