@@ -11,7 +11,7 @@
     <section id="start-screen" class="card screen">
       <p class="eyebrow">StudyAssistant · Version 1</p>
       <h1>Learn a little. Play a little.</h1>
-      <p class="lead">Finish a quick AI study activity, then earn coins in a different 3D-style obby every run.</p>
+      <p class="lead">Pick a subject, play an AI-made worksheet challenge, then earn coins in a different 3D-style obby every run.</p>
       <div class="safety">For your safety, do not include your name, location, school, grade, or other personal information.</div>
       <div class="work-heading"><label for="student-input">What are you working on?</label><button id="start-avatar-button" class="avatar-button" aria-label="Choose character color"><span id="start-avatar-face"></span></button></div>
       <div class="start-character-tools"><button id="start-color-toggle" class="tiny" type="button">Choose character color</button><div id="start-color-picker" class="color-picker hidden"></div><div id="start-color-inventory" class="color-inventory"></div></div>
@@ -27,14 +27,15 @@
       <textarea id="student-input" maxlength="5000" spellcheck="false" autocomplete="off" placeholder="Paste a small piece of work or ask a study question..."></textarea>
       <div class="choice-row">
         <button class="primary action-button" data-action="proofread">Proofread my work</button>
-        <button class="secondary action-button" data-action="worksheet">Make a worksheet</button>
+        <button class="secondary action-button" data-action="worksheet">Play AI worksheet</button>
       </div>
       <p id="ai-error" class="error" role="alert"></p>
     </section>
 
     <section id="activity-screen" class="card screen hidden">
-      <p class="eyebrow">Study step</p>
-      <h2>Now do the work yourself</h2>
+      <p class="eyebrow">Worksheet Quest · Round 1</p>
+      <h2>Play the AI-made worksheet</h2>
+      <p class="quest-rule">Read the challenge, write your own attempt, and check it. A correct attempt unlocks the obby reward.</p>
       <div class="ai-response"><strong>StudyAssistant:</strong><span id="activity-answer"></span></div>
       <button id="retry-answer" class="secondary retry-answer-button" type="button">That answer is incorrect — try again</button>
       <button id="step-help" class="secondary step-help-button" type="button">I need step-by-step help</button>

@@ -21,6 +21,7 @@ textarea:focus { outline: 3px solid #91e6c7; }
 .step-help-button:disabled { cursor: wait; opacity: .7; }
 .retry-answer-button:disabled { cursor: wait; opacity: .7; }
 .hint { color: #aab5ed; font-size: .9rem; }
+.quest-rule { margin: 8px 0 18px; padding: 10px 12px; border-left: 3px solid #f6cf68; color: #f6e7b5; background: rgba(246, 207, 104, .08); line-height: 1.4; }
 .safety { padding: 12px 14px; border-radius: 12px; background: #30294e; color: #ffd9a0; line-height: 1.4; font-size: .9rem; }
 .choice-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 button { border: 0; border-radius: 12px; padding: 13px 17px; font: inherit; font-weight: 800; cursor: pointer; color: #10152c; transition: transform .15s ease, filter .15s ease; }
