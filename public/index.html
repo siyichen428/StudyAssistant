@@ -13,7 +13,8 @@
       <h1>Learn a little. Play a little.</h1>
       <p class="lead">Finish a quick AI study activity, then earn coins in a different 3D-style obby every run.</p>
       <div class="safety">For your safety, do not include your name, location, school, grade, or other personal information.</div>
-      <label for="student-input">What are you working on?</label>
+      <div class="work-heading"><label for="student-input">What are you working on?</label><button id="start-avatar-button" class="avatar-button" aria-label="Choose character color"><span id="start-avatar-face"></span></button></div>
+      <div class="start-character-tools"><button id="start-color-toggle" class="tiny" type="button">Choose character color</button><div id="start-color-picker" class="color-picker hidden"></div><div id="start-color-inventory" class="color-inventory"></div></div>
       <label for="subject">Subject</label>
       <select id="subject">
         <option>Math</option>
@@ -53,7 +54,7 @@
       <div class="hud"><span>Coins: <strong id="score">0</strong></span><span id="run-label">Run 1 · Reach the star!</span><div class="hud-actions"><button id="shop-toggle" class="tiny">Shop</button><button id="restart-top" class="tiny">Restart</button></div></div>
       <div id="game-container"></div>
       <div id="ai-card" class="ai-card"><strong>StudyAssistant says:</strong><span id="ai-answer"></span></div>
-      <div class="avatar-dock"><button id="avatar-button" class="avatar-button" aria-label="Choose AI helper color"><span id="avatar-face"></span><b>AI</b></button><div><strong>Your AI helper</strong><p id="avatar-status">Click the AI helper to choose owned colors.</p></div><div id="color-picker" class="color-picker hidden"></div><div id="color-inventory" class="color-inventory"></div></div>
+      <div class="avatar-dock"><button id="avatar-button" class="avatar-button" aria-label="Choose character color"><span id="avatar-face"></span></button><div><strong>Your character</strong><p id="avatar-status">Click the character to choose owned colors.</p></div><div id="color-picker" class="color-picker hidden"></div><div id="color-inventory" class="color-inventory"></div></div>
       <div id="shop-panel" class="shop-panel hidden" aria-live="polite">
         <div><strong>Coin Shop</strong><p>Spend coins from this run on upgrades.</p></div>
         <div class="shop-items">
