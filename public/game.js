@@ -50,7 +50,16 @@ function rollColor(randomValue = Math.random()) { const total = COLOR_CATALOG.re
 loadPlayerState();
 
 function showScreen(name) { Object.entries(screens).forEach(([key, node]) => node.classList.toggle('hidden', key !== name)); }
-function normalizeMath(text) { return String(text || '').replace(/\\\\([()[\]])/g, '\\$1'); }
+function normalizeMath(text) {
+  return String(text || '')
+    .replace(/\\\\(?=[()[\]])/g, '\\')
+    .replace(/\\\[/g, '').replace(/\\\]/g, '').replace(/\\\(/g, '').replace(/\\\)/g, '')
+    .replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, '($1) ÷ ($2)')
+    .replace(/\\sqrt\s*\{([^{}]+)\}/g, '√($1)')
+    .replace(/\\(?:times|cdot)/g, '×').replace(/\\div/g, '÷')
+    .replace(/\\(?:leq|le)/g, '≤').replace(/\\(?:geq|ge)/g, '≥').replace(/\\neq/g, '≠')
+    .replace(/\\text\s*\{([^{}]+)\}/g, '$1').replace(/\\boxed\s*\{([^{}]+)\}/g, '$1');
+}
 function renderMath() { const nodes = [...document.querySelectorAll('.math-output')]; if (window.MathJax?.typesetPromise) { window.MathJax.typesetClear?.(nodes); window.MathJax.typesetPromise(nodes).catch(() => {}); } else if (!renderMath.tries || renderMath.tries < 12) { renderMath.tries = (renderMath.tries || 0) + 1; setTimeout(renderMath, 250); } }
 function setActionButtonsDisabled(disabled) { document.querySelectorAll('.action-button').forEach((button) => { button.disabled = disabled; }); }
 function friendlyError(error) { const message = error?.name === 'AbortError' ? 'The request took too long.' : 'StudyAssistant could not answer.'; $('ai-error').textContent = `${message} Please try again.`; showScreen('start'); }
