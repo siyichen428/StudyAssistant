@@ -50,6 +50,8 @@ function rollColor(randomValue = Math.random()) { const total = COLOR_CATALOG.re
 loadPlayerState();
 
 function showScreen(name) { Object.entries(screens).forEach(([key, node]) => node.classList.toggle('hidden', key !== name)); }
+function normalizeMath(text) { return String(text || '').replace(/\\\\([()[\]])/g, '\\$1'); }
+function renderMath() { const nodes = [...document.querySelectorAll('.math-output')]; if (window.MathJax?.typesetPromise) { window.MathJax.typesetClear?.(nodes); window.MathJax.typesetPromise(nodes).catch(() => {}); } else if (!renderMath.tries || renderMath.tries < 12) { renderMath.tries = (renderMath.tries || 0) + 1; setTimeout(renderMath, 250); } }
 function setActionButtonsDisabled(disabled) { document.querySelectorAll('.action-button').forEach((button) => { button.disabled = disabled; }); }
 function friendlyError(error) { const message = error?.name === 'AbortError' ? 'The request took too long.' : 'StudyAssistant could not answer.'; $('ai-error').textContent = `${message} Please try again.`; showScreen('start'); }
 function applySelectedColor() { [['avatar-button', 'avatar-face'], ['start-avatar-button', 'start-avatar-face']].forEach(([buttonId, faceId]) => { if ($(buttonId)) $(buttonId).style.background = selectedColor; if ($(faceId)) $(faceId).style.background = selectedColor === '#ffffff' ? '#10152c' : '#fff'; }); game?.scene?.getScene('StudyScene')?.setPlayerColor(selectedColor); }
@@ -68,7 +70,7 @@ function updateShop() {
 function spendCoins(cost) { const scene = currentScene(); if (!scene || scene.coins < cost) return false; scene.coins -= cost; $('score').textContent = scene.coins; updateShop(); return true; }
 function buyColorPack() { if (!spendCoins(5)) { $('shop-message').textContent = 'Collect 5 coins first.'; return; } const item = rollColor(); grantColor(item.color); selectedColor = item.color; applySelectedColor(); updateColorPicker(); $('shop-message').textContent = `${item.name} received! ${item.rarity} · ${item.weight}% drop factor. Duplicates are kept.`; }
 function buyDecorationPack() { const decoration = DECORATIONS.find((item) => !unlockedDecorations.has(item)); if (!decoration) return; if (!spendCoins(7)) { $('shop-message').textContent = 'Collect 7 coins first.'; return; } unlockedDecorations.add(decoration); currentScene()?.addShopDecoration(decoration); $('shop-message').textContent = `${decoration.replace('-', ' ')} added to your 3D scene!`; }
-function showStudyActivity() { $('activity-answer').textContent = currentAnswer; $('retry-answer').disabled = false; $('retry-answer').textContent = 'That answer is incorrect — try again'; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('attempt-feedback').classList.add('hidden'); $('attempt-feedback').textContent = ''; $('student-work').value = ''; $('complete-activity').disabled = true; $('complete-activity').textContent = 'Check my attempt'; showScreen('activity'); $('student-work').focus(); }
+function showStudyActivity() { $('activity-answer').textContent = normalizeMath(currentAnswer); $('retry-answer').disabled = false; $('retry-answer').textContent = 'That answer is incorrect — try again'; $('step-help-panel').classList.add('hidden'); $('step-help-answer').textContent = ''; $('step-help').disabled = false; $('step-help').textContent = 'I need step-by-step help'; $('attempt-feedback').classList.add('hidden'); $('attempt-feedback').textContent = ''; $('student-work').value = ''; $('complete-activity').disabled = true; $('complete-activity').textContent = 'Check my attempt'; showScreen('activity'); $('student-work').focus(); renderMath(); }
 async function requestAI(action) {
   if (aiRequestInFlight) return;
   const message = $('student-input').value.trim();
@@ -92,8 +94,9 @@ async function requestStepHelp() {
     const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'steps', subject: $('subject').value, message }) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
-    $('step-help-answer').textContent = data.answer;
+    $('step-help-answer').textContent = normalizeMath(data.answer);
     $('step-help-panel').classList.remove('hidden');
+    renderMath();
     button.textContent = 'Step-by-step help ready';
   } catch (error) {
     button.disabled = false;
@@ -162,9 +165,9 @@ async function submitStudentAttempt() {
     const response = await fetch('/api/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'check', subject: $('subject').value, message }) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error);
-    if (/^\s*CORRECT\b/i.test(data.answer)) { $('ai-answer').textContent = currentAnswer; startGame(); return; }
+    if (/^\s*CORRECT\b/i.test(data.answer)) { $('ai-answer').textContent = normalizeMath(currentAnswer); renderMath(); startGame(); return; }
     const explanation = data.answer.replace(/^\s*INCORRECT\s*:\s*/i, '').trim();
-    $('attempt-feedback').textContent = `Sorry, try again.\n\n${explanation}`;
+    $('attempt-feedback').textContent = normalizeMath(`Sorry, try again.\n\n${explanation}`);
     $('attempt-feedback').classList.remove('hidden');
     button.disabled = false; button.textContent = 'Check my attempt';
   } catch (error) {

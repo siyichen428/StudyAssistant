@@ -36,10 +36,10 @@
       <p class="eyebrow">Worksheet Quest · Round 1</p>
       <h2>Play the AI-made worksheet</h2>
       <p class="quest-rule">Read the challenge, write your own attempt, and check it. A correct attempt unlocks the obby reward.</p>
-      <div class="ai-response"><strong>StudyAssistant:</strong><span id="activity-answer"></span></div>
+      <div class="ai-response math-output"><strong>StudyAssistant:</strong><span id="activity-answer"></span></div>
       <button id="retry-answer" class="secondary retry-answer-button" type="button">That answer is incorrect — try again</button>
       <button id="step-help" class="secondary step-help-button" type="button">I need step-by-step help</button>
-      <div id="step-help-panel" class="ai-response hidden" aria-live="polite"><strong>Step-by-step help:</strong><span id="step-help-answer"></span></div>
+      <div id="step-help-panel" class="ai-response math-output hidden" aria-live="polite"><strong>Step-by-step help:</strong><span id="step-help-answer"></span></div>
       <label for="student-work">Your attempt</label>
       <textarea id="student-work" maxlength="5000" spellcheck="false" autocomplete="off" placeholder="Answer one question, write your revision plan, or show what you changed..."></textarea>
       <div id="attempt-feedback" class="attempt-feedback hidden" role="alert"></div>
@@ -54,7 +54,7 @@
     <section id="game-screen" class="game-wrap hidden">
       <div class="hud"><span>Coins: <strong id="score">0</strong></span><span id="run-label">Run 1 · Reach the star!</span><div class="hud-actions"><button id="shop-toggle" class="tiny">Shop</button><button id="restart-top" class="tiny">Restart</button></div></div>
       <div id="game-container"></div>
-      <div id="ai-card" class="ai-card"><strong>StudyAssistant says:</strong><span id="ai-answer"></span></div>
+      <div id="ai-card" class="ai-card math-output"><strong>StudyAssistant says:</strong><span id="ai-answer"></span></div>
       <div class="avatar-dock"><button id="avatar-button" class="avatar-button" aria-label="Choose character color"><span id="avatar-face"></span></button><div><strong>Your character</strong><p id="avatar-status">Click the character to choose owned colors.</p></div><div id="color-picker" class="color-picker hidden"></div><div id="color-inventory" class="color-inventory"></div></div>
       <div id="shop-panel" class="shop-panel hidden" aria-live="polite">
         <div><strong>Coin Shop</strong><p>Spend coins from this run on upgrades.</p></div>
@@ -70,6 +70,8 @@
 
     <section id="end-screen" class="card screen hidden"><p class="eyebrow">Level complete</p><h2 id="end-title">Game Over</h2><p id="end-message"></p><p class="final-score">Coins earned: <strong id="final-score">0</strong></p><button id="play-again" class="primary">Play Again</button></section>
   </main>
+  <script>window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] } };</script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
   <script src="/game.js"></script>
 </body>

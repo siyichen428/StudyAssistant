@@ -34,6 +34,7 @@ Then open http://localhost:3000 in a browser.
 - Turned the player into an AI helper character and added persistent color ownership with Common 20%, Rare 5%, Legendary 1%, and Special 0.2% drop factors; duplicate colors are kept.
 - Restored the normal round character and added a color preview/chooser beside “What are you working on?” on the start screen.
 - Made the worksheet flow a clear playable “Worksheet Quest”: choose a subject, play the AI-made challenge, check the student attempt, and unlock the obby reward.
+- Added MathJax rendering so fractions and other AI-generated math display as readable math instead of raw LaTeX notation.
 
 ## Put it online with Vercel
 
