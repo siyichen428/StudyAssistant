@@ -18,7 +18,7 @@ Then open http://localhost:3000 in a browser.
 
 - Saved the competition and safety plan in `BRIEF.md`.
 - Added a plain HTML/CSS/JavaScript Phaser 3 game with a start screen, score, one short obby level, touch controls, keyboard controls, and Game Over / Play Again screens.
-- Connected the Proofread and Make a worksheet actions to the OpenAI API through `server.js`; the key stays in `.env` and the game pauses on “Thinking…”.
+- Connected the Proofread and Make a worksheet actions to the OpenAI API through a server-side endpoint; the key stays off the game page and the game pauses on “Thinking…”.
 - Added safety reminders and prompts that ask for hints, outlines, and feedback instead of doing the student’s work.
 - Tested the end-to-end AI-to-game flow with a sample question; the game pauses while thinking and then starts the playable level.
 - Required the student to submit their own attempt before the obby unlocks.
@@ -31,6 +31,17 @@ Then open http://localhost:3000 in a browser.
 - Added a retry button so students can request a fresh AI answer when the previous answer seems incorrect.
 - Added answer checking before the obby unlocks; incorrect attempts show “Sorry, try again” with an explanation.
 - Strengthened the AI guidance so it teaches with hints and methods without giving final answers.
+
+## Put it online with Vercel
+
+1. Push this repository to GitHub and import it into Vercel.
+2. Keep the Vercel project settings at their defaults. `vercel.json` sets `public` as the static output and disables the build command; `api/ai.js` is the only server function.
+3. In Vercel Project Settings → Environment Variables, add these two names for the Production environment:
+   - `KEYGEN_URL` — the server-side URL for the key service.
+   - `KEYGEN_TOKEN` — the server-side token for that service.
+4. Redeploy. The browser sends requests to `/api/ai`; only the Vercel function calls the key service and OpenAI. Neither secret is sent to the browser.
+
+No other Vercel setting is required. Do not add `OPENAI_API_KEY` to Vercel for the online deployment: local `server.js` still uses the ignored `.env` file on this computer, while Vercel uses `getKey()` with `KEYGEN_URL` and `KEYGEN_TOKEN`.
 
 ## Maybe Later
 
