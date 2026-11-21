@@ -31,6 +31,7 @@ Then open http://localhost:3000 in a browser.
 - Added a retry button so students can request a fresh AI answer when the previous answer seems incorrect.
 - Added answer checking before the obby unlocks; incorrect attempts show “Sorry, try again” with an explanation.
 - Strengthened the AI guidance so it teaches with hints and methods without giving final answers.
+- Turned the player into an AI helper character and added persistent color ownership with Common 20%, Rare 5%, Legendary 1%, and Special 0.2% drop factors; duplicate colors are kept.
 
 ## Put it online with Vercel
 
